@@ -1,0 +1,191 @@
+<html>
+<head>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script>
+
+
+// Lets fo some jQuery
+jQuery(function($) {
+
+	var result = [];
+	var videos = [];
+	var last = false;
+	var count = 1;
+	var pages = 0;
+
+	var $video = $('video');
+	var vid = $video.get(0);
+
+	var myArray = ['charlie chaplin','buster keaton','cinemagraph', 'cinemagraphs', 'los angeles', 'la','hollywood', 'airport','river','flowers', 'running', 'soccer', 'football', 'science', 'space', 'city', 'vegas', 'texas', 'trippy', 'hippie', 'street art', 'hiphop', 'bob marley', 'rock', 'game', 'gamer', 'effect', '3d', 'anime', 'nyc', 'new york', 'san francisco', 'chicago', 'uk', 'beatles', 'film', 'star wars', '90s', '80s', '70s', '60s', '50s', '20s', 'vintage', 'surf', 'surfing', 'skate', 'skateboard', 'concert', 'mountain', 'cool', 'galaxy', 'nature', 'love', 'red', 'blue', 'green', 'yellow']
+	var rand = myArray[Math.floor(Math.random() * myArray.length)];
+	var mytags = document.location.search.substr(1).replace('q=','');
+	console.log(rand);
+	get_json(rand);
+
+	// Get da Tummblr JSON
+	function get_json(tags) {
+
+		$.ajax({
+		    type: "GET",
+		    url: "http://archive.org/advancedsearch.php?q="+tags+"+AND+mediatype%3Amovies&fl%5B%5D=identifier&fl%5B%5D=mediatype&sort%5B%5D=&sort%5B%5D=&sort%5B%5D=&rows=5&page=1&output=json&callback=callback&save=yes",
+		    dataType: "jsonp",
+		    success: readData,
+			error: function() {
+				console.log("page not found");
+			}
+		});
+
+	}
+
+	function readData(data){
+		var obj = data.response,
+			docs = obj.docs;
+		$.each(docs, function(i,item){
+			result.push(item.identifier);
+		});
+		getPage(result)
+	}
+	function getPage(data){
+		pages = data.length;
+		$.each(data, function(i,item){
+			$.ajax({
+			    type: "GET",
+			    url: "http://archive.org/details/"+item+"?output=json",
+			    dataType: "jsonp",
+			    success: getVideo,
+				error: function() {
+					console.log("page not found");
+				}
+			});
+		});
+	}
+	function getVideo(data){
+
+		var obj = data,
+			srv = obj.server,
+			dir = obj.dir,
+			files = obj.files,
+			isa = true;
+
+		$.each(files, function(key, value){
+				if(value.format == 'h.264' && key.indexOf('mp4') !== -1){
+					videos.push(srv+dir+key);
+				}else if(value.format == 'MPEG4' && key.indexOf('mp4') !== -1){
+					videos.push(srv+dir+key);
+				}
+		});
+		if(count == pages){
+			videos = videos.sort(function() { return 0.5 - Math.random();});
+			if(videos[0]) {
+				$video.empty().append('<source src="http://'+videos[0]+'" type="video/mp4" />');
+			}else{
+				get_json(rand);
+			}
+
+			// $.each(videos, function(i, item){
+			// 	$('video').append('<source src="http://'+item+'" type="video/mp4" />');
+			// });
+		}else{
+			count++;
+		}
+		
+	}
+
+	//on keying in get json
+	$('.query input').keyup(function(e){
+		if (e.which == 13) {
+			$video.empty();
+			var sample = this.value.replace(' ','+');
+			sample = sample.replace("http://", "");
+			sample = sample.replace("/", "");
+			//console.log(sample);
+			$(this).val(sample);
+			get_json(sample);
+		}
+	});
+
+
+	$(document).keypress(function(e) { 
+	    if (e.which == 32) {
+			if (!vid.paused) {
+				vid.pause();
+			}else{
+				vid.play();
+			}
+	    }
+	});
+
+	$('video').bind('progress', function() {
+	  //console.log('Progress: ' + vid.buffered.end(0) / vid.duration);
+	  console.log('Duration: ' + vid.buffered.end(0));
+
+	});
+
+
+	$('video').bind('timeupdate', function() {
+	  if(vid.ended){
+	  	console.log('finished');
+	  	$video.empty();
+	  	get_json(rand);
+	  }
+	  //console.log('TimeUdate: ' + vid.currentTime / vid.duration);
+	});
+
+});
+
+
+
+</script>
+<style>
+html,
+body {
+	margin:0;
+	padding:0;
+	background: #000;
+}
+video {
+	height:100%;
+	width:100%;
+	margin: 0 auto;
+}
+.query {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	width: 400px;
+	margin-left: -250px;
+	margin-top: -100px;
+	height: 100px;
+	padding: 50px;
+	z-index: 99;
+}
+.query input {
+	padding: 10px;
+	font-family: 'Raleway';
+	font-style: normal;
+	font-weight: 100;
+	font-size: 24px;
+	width: auto;
+	height: auto;
+	width: 400px;
+	background: rgba(0, 0, 0, 0.6);
+	color: #e6e6e6;
+	opacity: 1;
+	border: 1px solid #646464;
+	-webkit-box-shadow: 0px 0px 100px #000000;
+	-moz-box-shadow: 0px 0px 100px #000000;
+	box-shadow: 0px 0px 100px #000000;
+	-webkit-transition: opacity 0.5s;
+	-moz-transition: opacity 0.5s;
+	-o-transition: opacity 0.5s;
+	transition: opacity 0.5s;
+}
+</style>
+</head>
+<body>
+<div class="query">
+	<input type="text" />
+</div>
+<video controls="" autoplay></video>
+</body>
+</html>
