@@ -154,17 +154,36 @@ jQuery(function($) {
 
 </script>
 <style>
+/* TYPE */
+@font-face {
+  font-family: 'Raleway';
+  font-style: normal;
+  font-weight: 100;
+  src: local('Raleway Thin'), local('Raleway-Thin'), url(http://themes.googleusercontent.com/static/fonts/raleway/v6/RJMlAoFXXQEzZoMSUteGWLO3LdcAZYWl9Si6vvxL-qU.woff) format('woff');
+}
+@font-face {
+  font-family: 'Raleway';
+  font-style: normal;
+  font-weight: 400;
+  src: local('Raleway'), url(http://themes.googleusercontent.com/static/fonts/raleway/v6/cIFypx4yrWPDz3zOxk7hIQLUuEpTyoUstqEm5AMlJo4.woff) format('woff');
+}
+
+/* Reset */
 html,
 body {
 	margin:0;
 	padding:0;
 	background: #000;
 }
+
+/* Full-ness */
 video {
 	height:100%;
 	width:100%;
 	margin: 0 auto;
 }
+
+/* query box */
 .query {
 	position: absolute;
 	top: 50%;
