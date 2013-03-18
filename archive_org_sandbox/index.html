@@ -1,5 +1,6 @@
 <html>
 <head>
+<title>Get Some Archive Video</title>
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
 <script>
 
@@ -7,22 +8,35 @@
 // Lets fo some jQuery
 jQuery(function($) {
 
+	// Set some Variables
 	var result = [];
 	var videos = [];
 	var last = false;
 	var count = 1;
 	var pages = 0;
 
+	// Set video object
 	var $video = $('video');
+
+	// Set video player
 	var vid = $video.get(0);
 
+	// Some random searches on initial load
 	var myArray = ['charlie chaplin','buster keaton','cinemagraph', 'cinemagraphs', 'los angeles', 'la','hollywood', 'airport','river','flowers', 'running', 'soccer', 'football', 'science', 'space', 'city', 'vegas', 'texas', 'trippy', 'hippie', 'street art', 'hiphop', 'bob marley', 'rock', 'game', 'gamer', 'effect', '3d', 'anime', 'nyc', 'new york', 'san francisco', 'chicago', 'uk', 'beatles', 'film', 'star wars', '90s', '80s', '70s', '60s', '50s', '20s', 'vintage', 'surf', 'surfing', 'skate', 'skateboard', 'concert', 'mountain', 'cool', 'galaxy', 'nature', 'love', 'red', 'blue', 'green', 'yellow']
+	
 	var rand = myArray[Math.floor(Math.random() * myArray.length)];
 	var mytags = document.location.search.substr(1).replace('q=','');
+	
+	// What random?
 	console.log(rand);
+
+	// Go get it
 	get_json(rand);
 
-	// Get da Tummblr JSON
+	// place random shit in the input box
+	$('.query input').val(rand.split('+').join(' '));
+
+	// Get the Archive.org JSON
 	function get_json(tags) {
 
 		$.ajax({
@@ -37,6 +51,7 @@ jQuery(function($) {
 
 	}
 
+	// Read the result and get page.
 	function readData(data){
 		var obj = data.response,
 			docs = obj.docs;
@@ -45,6 +60,8 @@ jQuery(function($) {
 		});
 		getPage(result)
 	}
+
+	// Get the page of results
 	function getPage(data){
 		pages = data.length;
 		$.each(data, function(i,item){
@@ -59,6 +76,8 @@ jQuery(function($) {
 			});
 		});
 	}
+
+	// Filter through all te files and get the video
 	function getVideo(data){
 
 		var obj = data,
@@ -75,16 +94,14 @@ jQuery(function($) {
 				}
 		});
 		if(count == pages){
-			videos = videos.sort(function() { return 0.5 - Math.random();});
-			if(videos[0]) {
-				$video.empty().append('<source src="http://'+videos[0]+'" type="video/mp4" />');
+			//videos = videos.sort(function() { return 0.5 - Math.random();});
+			var randurl = videos[Math.floor(Math.random() * videos.length)];
+			if(randurl) {
+				$video.empty().append('<source src="http://'+randurl+'" type="video/mp4" />');
 			}else{
-				get_json(rand);
+				var newrand = myArray[Math.floor(Math.random() * myArray.length)];
+				get_json(newrand);
 			}
-
-			// $.each(videos, function(i, item){
-			// 	$('video').append('<source src="http://'+item+'" type="video/mp4" />');
-			// });
 		}else{
 			count++;
 		}
@@ -93,7 +110,6 @@ jQuery(function($) {
 
 	//on keying in get json
 	$('.query input').keyup(function(e){
-		if (e.which == 13) {
 			$video.empty();
 			var sample = this.value.replace(' ','+');
 			sample = sample.replace("http://", "");
@@ -101,10 +117,9 @@ jQuery(function($) {
 			//console.log(sample);
 			$(this).val(sample);
 			get_json(sample);
-		}
 	});
 
-
+	// play pause on spacebar
 	$(document).keypress(function(e) { 
 	    if (e.which == 32) {
 			if (!vid.paused) {
@@ -115,18 +130,20 @@ jQuery(function($) {
 	    }
 	});
 
+	// What's going on, what's going on?
 	$('video').bind('progress', function() {
 	  //console.log('Progress: ' + vid.buffered.end(0) / vid.duration);
 	  console.log('Duration: ' + vid.buffered.end(0));
 
 	});
 
-
+	// load a new video
 	$('video').bind('timeupdate', function() {
 	  if(vid.ended){
 	  	console.log('finished');
 	  	$video.empty();
-	  	get_json(rand);
+	  	var newrand = myArray[Math.floor(Math.random() * myArray.length)];
+	  	get_json(newrand);
 	  }
 	  //console.log('TimeUdate: ' + vid.currentTime / vid.duration);
 	});
@@ -159,6 +176,9 @@ video {
 	padding: 50px;
 	z-index: 99;
 }
+.query:hover input{
+	opacity: 1;
+}
 .query input {
 	padding: 10px;
 	font-family: 'Raleway';
@@ -170,7 +190,7 @@ video {
 	width: 400px;
 	background: rgba(0, 0, 0, 0.6);
 	color: #e6e6e6;
-	opacity: 1;
+	opacity: 0;
 	border: 1px solid #646464;
 	-webkit-box-shadow: 0px 0px 100px #000000;
 	-moz-box-shadow: 0px 0px 100px #000000;
